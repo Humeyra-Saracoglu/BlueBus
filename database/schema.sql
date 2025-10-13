@@ -47,7 +47,7 @@ CREATE TABLE tickets (
 CREATE TABLE wallet_tx (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
-  amount_cents INTEGER NOT NULL,
+  amount_cents INTEGER NOT NULL, -- + iade, - ödeme
   reason TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
@@ -55,7 +55,7 @@ CREATE TABLE wallet_tx (
 
 CREATE TABLE coupons (
   code TEXT PRIMARY KEY,
-  firm_id INTEGER NULL,
+  firm_id INTEGER NULL, -- NULL=global kupon
   percent INTEGER NOT NULL CHECK (percent BETWEEN 1 AND 100),
   usage_limit INTEGER NOT NULL CHECK (usage_limit >= 1),
   expires_at DATETIME NOT NULL,
