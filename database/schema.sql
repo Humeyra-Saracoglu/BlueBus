@@ -1,0 +1,74 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE firms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('USER','FIRM_ADMIN','ADMIN')),
+  firm_id INTEGER NULL,
+  credit_cents INTEGER NOT NULL DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (firm_id) REFERENCES firms(id)
+);
+
+CREATE TABLE routes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  firm_id INTEGER NOT NULL,
+  origin TEXT NOT NULL,
+  destination TEXT NOT NULL,
+  depart_at DATETIME NOT NULL,
+  price_cents INTEGER NOT NULL,
+  seat_count INTEGER NOT NULL CHECK (seat_count BETWEEN 10 AND 64),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (firm_id) REFERENCES firms(id)
+);
+
+CREATE TABLE tickets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  route_id INTEGER NOT NULL,
+  seat_no INTEGER NOT NULL,
+  price_paid_cents INTEGER NOT NULL,
+  coupon_code TEXT NULL,
+  status TEXT NOT NULL CHECK (status IN ('ACTIVE','CANCELED')) DEFAULT 'ACTIVE',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (route_id, seat_no),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (route_id) REFERENCES routes(id)
+);
+
+CREATE TABLE wallet_tx (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  amount_cents INTEGER NOT NULL,
+  reason TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE coupons (
+  code TEXT PRIMARY KEY,
+  firm_id INTEGER NULL,
+  percent INTEGER NOT NULL CHECK (percent BETWEEN 1 AND 100),
+  usage_limit INTEGER NOT NULL CHECK (usage_limit >= 1),
+  expires_at DATETIME NOT NULL,
+  FOREIGN KEY (firm_id) REFERENCES firms(id)
+);
+
+CREATE TABLE coupon_usages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL,
+  user_id INTEGER NOT NULL,
+  ticket_id INTEGER NOT NULL,
+  used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (code) REFERENCES coupons(code),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (ticket_id) REFERENCES tickets(id)
+);
