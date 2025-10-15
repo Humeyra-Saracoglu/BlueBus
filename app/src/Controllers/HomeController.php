@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . '/../Utils/Auth.php';
 $u = auth_user();
-
+if ($u) {
+  echo "<p><a href='/wallet'>Cüzdanım (bakiyeyi gör)</a></p>";
+}
 echo '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">';
 if ($u) {
   echo "<span>👋 Merhaba, <strong>".htmlspecialchars($u['name'])."</strong> (<em>".htmlspecialchars($u['role'])."</em>)</span>";
