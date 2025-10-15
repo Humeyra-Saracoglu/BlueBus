@@ -15,6 +15,6 @@ echo "<h1>Sefer Ara</h1>";
 echo '<form method="GET" action="/routes" style="display:flex;gap:8px;">
         <input name="origin" placeholder="Nereden">
         <input name="destination" placeholder="Nereye">
-        <input type="date" name="date">
+        <input name="date" placeholder="GG.AA.YYYY" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}">
         <button type="submit">Ara</button>
       </form>';
