@@ -9,6 +9,7 @@ elseif ($path === '/routes')  { require __DIR__ . '/../src/Controllers/RouteCont
 elseif ($path === '/buy')     { require __DIR__ . '/../src/Controllers/PurchaseController.php'; exit; }
 elseif ($path === '/tickets') { require __DIR__ . '/../src/Controllers/MyTicketsController.php'; exit; }
 elseif ($path === '/wallet')  { require __DIR__ . '/../src/Controllers/WalletController.php'; exit;}
+elseif ($path === '/wallet/deposit' && $_SERVER['REQUEST_METHOD'] === 'POST') { require __DIR__ . '/../src/Controllers/WalletDepositController.php'; exit;}
 
 elseif ($path === '/login')   { require __DIR__ . '/../src/Controllers/LoginController.php'; exit; }
 elseif ($path === '/register'){ require __DIR__ . '/../src/Controllers/RegisterController.php'; exit; }
