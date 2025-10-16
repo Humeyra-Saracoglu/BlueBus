@@ -17,6 +17,8 @@ elseif ($path === '/tickets/cancel' && $_SERVER['REQUEST_METHOD'] === 'POST') { 
 elseif ($path === '/login')   { require __DIR__ . '/../src/Controllers/LoginController.php'; exit; }
 elseif ($path === '/register'){ require __DIR__ . '/../src/Controllers/RegisterController.php'; exit; }
 elseif ($path === '/logout')  { require __DIR__ . '/../src/Controllers/LogoutController.php'; exit; }
+elseif ($path === '/admin') { require __DIR__ . '/../src/Controllers/AdminController.php'; exit; }
+
 
 http_response_code(404);
 echo "404";
