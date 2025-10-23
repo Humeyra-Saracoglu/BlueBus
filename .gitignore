@@ -1,0 +1,16 @@
+# Database
+database/app.db
+database/*.db
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

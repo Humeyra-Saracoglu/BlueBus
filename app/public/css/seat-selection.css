@@ -1,0 +1,284 @@
+/* Koltuk Seçimi Sayfası CSS */
+.seat-selection-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+.bus-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.bus-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.bus-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: #1a1a1a;
+}
+
+.bus-body {
+    background: #f8f9fa;
+    border: 3px solid #dee2e6;
+    border-radius: 20px 20px 40px 40px;
+    padding: 2rem 1.5rem;
+    max-height: 650px;
+    overflow-y: auto;
+}
+
+.bus-front {
+    width: 80%;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(to bottom, #6c757d, #495057);
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.bus-seats {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* 2+1 düzeni: 2 koltuk - koridor - 1 koltuk */
+.bus-seats.layout-2-1 {
+    grid-template-columns: 1fr 1fr 0.5fr 1fr;
+}
+
+.seat {
+    aspect-ratio: 1;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    min-height: 45px;
+    max-height: 55px;
+    position: relative;
+}
+
+.seat:hover:not(.seat-occupied):not(.seat-selected) {
+    border-color: #2563eb;
+    background: #eff6ff;
+    transform: scale(1.05);
+}
+
+.seat-available {
+    background: white;
+    border-color: #28a745;
+    color: #1a1a1a;
+}
+
+.seat-selected {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.seat-occupied {
+    background: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-color: #adb5bd;
+}
+
+.aisle {
+    background: none !important;
+    border: none !important;
+    cursor: default !important;
+}
+
+.seat-legends {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #dee2e6;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid;
+}
+
+.summary-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.route-info {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.route-cities {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.city-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.arrow {
+    font-size: 1.5rem;
+}
+
+.route-time {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-label {
+    color: #6c757d;
+}
+
+.info-value {
+    font-weight: 600;
+}
+
+.coupon-section {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.coupon-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.coupon-btn {
+    padding: 0.75rem 1.5rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.coupon-btn:hover {
+    background: #218838;
+}
+
+.price-section {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.discount-row {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.total-row {
+    padding-top: 0.75rem;
+    border-top: 2px solid #dee2e6;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.buy-button {
+    width: 100%;
+    padding: 1rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.buy-button:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.buy-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .seat-selection-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-panel {
+        position: static;
+    }
+    
+    .seat-legends {
+        gap: 0.5rem;
+    }
+}

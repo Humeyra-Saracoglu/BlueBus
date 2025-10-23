@@ -1,0 +1,22 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
+
+# Apache için URL düzenleme (opsiyonel)
+RewriteEngine On
+
+# PHP dosya uzantılarını gizle
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Hata sayfaları
+ErrorDocument 404 /404.php
+ErrorDocument 500 /500.php
+
+# Güvenlik
+Options -Indexes
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
