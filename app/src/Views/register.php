@@ -9,7 +9,8 @@
             <p>Hemen üye olun ve bilet almaya başlayın</p>
         </div>
 
-        <form class="auth-form" action="/register.php" method="POST" id="register-form">
+        <form class="auth-form" action="/register" method="POST" id="register-form">
+            <?= csrf_field() ?>
             <div class="form-row">
                 <div class="form-group">
                     <label for="ad">Ad *</label>
@@ -40,8 +41,8 @@
             <div class="form-group">
                 <label for="password">Şifre *</label>
                 <input type="password" id="password" name="password" placeholder="••••••••" 
-                       minlength="6" required>
-                <small style="color: #6b7280; font-size: 0.85rem;">En az 6 karakter</small>
+                       minlength="8" required>
+                <small style="color: #6b7280; font-size: 0.85rem;">En az 8 karakter, bir büyük harf, bir küçük harf ve bir rakam içermelidir.</small>
             </div>
 
             <div class="form-group">
@@ -60,7 +61,7 @@
             <button type="submit" class="btn btn-primary btn-block">Kayıt Ol</button>
 
             <div class="auth-footer">
-                <p>Zaten hesabınız var mı? <a href="/login.php" class="link">Giriş Yapın</a></p>
+                <p>Zaten hesabınız var mı? <a href="/login" class="link">Giriş Yapın</a></p>
             </div>
         </form>
     </div>

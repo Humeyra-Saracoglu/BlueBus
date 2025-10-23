@@ -2,12 +2,25 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../Utils/Auth.php';
+require_once __DIR__ . '/../Utils/Csrf.php';
+
+$logger_path = __DIR__ . '/../Utils/Logger.php';
+if (file_exists($logger_path)) {
+    require_once $logger_path;
+}
 
 $u = auth_user();
 if (!$u) { header('Location: /login'); exit; }
 
-$ticketId = isset($_POST['ticket_id']) ? (int)$_POST['ticket_id'] : 0;
-if ($ticketId <= 0) { http_response_code(400); echo "Geçersiz istek."; exit; }
+require_csrf();
+
+$ticketId = filter_var($_POST['ticket_id'] ?? 0, FILTER_VALIDATE_INT);
+
+if ($ticketId === false || $ticketId <= 0) { 
+    $_SESSION['error'] = 'Geçersiz bilet ID.';
+    header('Location: /tickets');
+    exit;
+}
 
 $db = getDbConnection();
 
@@ -57,6 +70,10 @@ try {
   ]);
 
   $db->commit();
+  
+  if (function_exists('log_ticket_cancel')) {
+      log_ticket_cancel($ticketId, $priceCents);
+  }
   
   $_SESSION['success'] = 'Bilet başarıyla iptal edildi. ' . number_format($priceCents/100, 2) . ' ₺ hesabınıza iade edildi.';
 } catch (Throwable $e) {

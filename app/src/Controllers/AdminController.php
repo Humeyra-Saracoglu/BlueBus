@@ -11,6 +11,8 @@ $db = getDbConnection();
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf();
+    
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add_firm') {

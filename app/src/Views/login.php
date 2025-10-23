@@ -9,7 +9,8 @@
             <p>Hesabınıza giriş yapın</p>
         </div>
 
-        <form class="auth-form" action="/login.php" method="POST">
+        <form class="auth-form" action="/login" method="POST">
+            <?= csrf_field() ?>
             <div class="form-group">
                 <label for="email">E-posta</label>
                 <input type="email" id="email" name="email" placeholder="ornek@email.com" required 
@@ -32,7 +33,7 @@
             <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
 
             <div class="auth-footer">
-                <p>Hesabınız yok mu? <a href="/register.php" class="link">Kayıt Olun</a></p>
+                <p>Hesabınız yok mu? <a href="/register" class="link">Kayıt Olun</a></p>
             </div>
         </form>
     </div>

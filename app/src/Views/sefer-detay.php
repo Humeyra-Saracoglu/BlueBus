@@ -179,6 +179,7 @@ try {
 
         <!-- Satın Al Formu -->
         <form method="POST" action="/buy" id="purchase-form">
+            <?= csrf_field() ?>
             <input type="hidden" name="route_id" value="<?= $route['id'] ?>">
             <input type="hidden" name="seat_number" id="seat-number-input" value="">
             <input type="hidden" name="price" id="price-input" value="<?= $route['price_cents'] ?>">

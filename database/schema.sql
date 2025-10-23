@@ -122,38 +122,195 @@ VALUES ('Firma', 'Admin', 'firma@metro.com', '05009876543', '$2y$10$92IXUNpkjO0r
 -- Test Kullanıcı (Normal kullanıcı, 1000₺ bakiye)
 INSERT OR IGNORE INTO users (ad, soyad, email, telefon, password, role, firm_id, credit_cents) 
 VALUES ('Test', 'Kullanıcı', 'test@test.com', '05001111111', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'USER', NULL, 100000);
-
--- Örnek Seferler (Routes) - Her gün sefer var, 30 gün için
--- Bus types: 2+2 (normal) ve 2+1 (premium with single seats)
+-- Örnek Seferler (Routes) - İLK HAFTA ÇOK YOGUN!
+-- Her popüler rota için günde 5-10 sefer
 INSERT OR IGNORE INTO routes (firm_id, origin, destination, depart_at, price_cents, seat_count, bus_type, duration_minutes) VALUES
--- Gün 1
-(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '09:00'), 25000, 40, '2+2', 330),
-(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '14:00'), 27000, 40, '2+2', 330),
-(2, 'İstanbul', 'İzmir', datetime('now', '+1 day', '10:00'), 28000, 35, '2+1', 480),
-(3, 'Ankara', 'Antalya', datetime('now', '+1 day', '15:00'), 30000, 40, '2+2', 540),
--- Gün 2
-(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '09:00'), 25000, 40, '2+2', 330),
-(2, 'İstanbul', 'İzmir', datetime('now', '+2 days', '11:00'), 28000, 35, '2+1', 480),
-(3, 'Ankara', 'İzmir', datetime('now', '+2 days', '13:00'), 26000, 40, '2+2', 420),
--- Gün 3
-(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '08:00'), 25000, 40, '2+2', 330),
-(2, 'İstanbul', 'Bursa', datetime('now', '+3 days', '10:00'), 15000, 30, '2+1', 180),
-(3, 'Ankara', 'Antalya', datetime('now', '+3 days', '14:00'), 30000, 40, '2+2', 540),
--- Gün 4
-(1, 'İstanbul', 'Ankara', datetime('now', '+4 days', '09:30'), 25000, 40, '2+2', 330),
-(2, 'İzmir', 'Ankara', datetime('now', '+4 days', '12:00'), 26000, 35, '2+1', 420),
-(3, 'Bursa', 'Antalya', datetime('now', '+4 days', '16:00'), 32000, 40, '2+2', 600),
--- Gün 5
-(1, 'İstanbul', 'Ankara', datetime('now', '+5 days', '07:00'), 25000, 40, '2+2', 330),
-(2, 'İstanbul', 'İzmir', datetime('now', '+5 days', '09:00'), 28000, 35, '2+1', 480),
-(3, 'Ankara', 'İstanbul', datetime('now', '+5 days', '18:00'), 25000, 40, '2+2', 330),
--- Gün 6-10
-(1, 'İstanbul', 'Ankara', datetime('now', '+6 days', '10:00'), 25000, 40, '2+2', 330),
-(2, 'İstanbul', 'İzmir', datetime('now', '+7 days', '11:00'), 28000, 35, '2+1', 480),
+
+-- GÜN 1 (YARIN) - 30 SEFER
+-- İstanbul → Ankara (en popüler)
+(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '06:00'), 25000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '08:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+1 day', '10:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '12:00'), 25000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+1 day', '14:00'), 24000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '16:00'), 27000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+1 day', '18:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+1 day', '20:00'), 25000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+1 day', '22:00'), 28000, 40, '2+2', 330),
+
+-- İstanbul → İzmir
+(2, 'İstanbul', 'İzmir', datetime('now', '+1 day', '07:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+1 day', '09:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+1 day', '11:00'), 26000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+1 day', '13:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+1 day', '15:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+1 day', '17:00'), 29000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+1 day', '19:00'), 30000, 35, '2+1', 480),
+
+-- İstanbul → Antalya
+(3, 'İstanbul', 'Antalya', datetime('now', '+1 day', '08:00'), 35000, 40, '2+2', 600),
+(2, 'İstanbul', 'Antalya', datetime('now', '+1 day', '12:00'), 36000, 35, '2+1', 600),
+(1, 'İstanbul', 'Antalya', datetime('now', '+1 day', '16:00'), 34000, 40, '2+2', 600),
+(3, 'İstanbul', 'Antalya', datetime('now', '+1 day', '20:00'), 37000, 40, '2+2', 600),
+
+-- İstanbul → Bursa (yakın, çok sefer)
+(1, 'İstanbul', 'Bursa', datetime('now', '+1 day', '07:00'), 15000, 30, '2+1', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+1 day', '09:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+1 day', '11:00'), 15000, 30, '2+1', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+1 day', '13:00'), 14500, 30, '2+2', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+1 day', '15:00'), 15000, 30, '2+1', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+1 day', '17:00'), 16000, 30, '2+2', 180),
+
+-- Ankara → İzmir
+(2, 'Ankara', 'İzmir', datetime('now', '+1 day', '08:00'), 26000, 35, '2+1', 420),
+(1, 'Ankara', 'İzmir', datetime('now', '+1 day', '12:00'), 25000, 40, '2+2', 420),
+(3, 'Ankara', 'İzmir', datetime('now', '+1 day', '16:00'), 24000, 40, '2+2', 420),
+
+-- Ankara → Antalya
+(3, 'Ankara', 'Antalya', datetime('now', '+1 day', '09:00'), 30000, 40, '2+2', 540),
+(2, 'Ankara', 'Antalya', datetime('now', '+1 day', '15:00'), 31000, 35, '2+1', 540),
+
+-- GÜN 2 - 35 SEFER
+(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '06:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+2 days', '08:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '10:00'), 25000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+2 days', '12:00'), 24000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '14:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+2 days', '16:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '18:00'), 27000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+2 days', '20:00'), 25000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+2 days', '22:00'), 28000, 40, '2+2', 330),
+
+(2, 'İstanbul', 'İzmir', datetime('now', '+2 days', '07:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+2 days', '09:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+2 days', '11:00'), 26000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+2 days', '13:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+2 days', '15:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+2 days', '17:00'), 29000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+2 days', '19:00'), 30000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+2 days', '21:00'), 28000, 40, '2+2', 480),
+
+(3, 'İstanbul', 'Antalya', datetime('now', '+2 days', '08:00'), 35000, 40, '2+2', 600),
+(2, 'İstanbul', 'Antalya', datetime('now', '+2 days', '12:00'), 36000, 35, '2+1', 600),
+(1, 'İstanbul', 'Antalya', datetime('now', '+2 days', '16:00'), 34000, 40, '2+2', 600),
+(3, 'İstanbul', 'Antalya', datetime('now', '+2 days', '20:00'), 37000, 40, '2+2', 600),
+
+(1, 'İstanbul', 'Bursa', datetime('now', '+2 days', '07:00'), 15000, 30, '2+1', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+2 days', '09:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+2 days', '11:00'), 15000, 30, '2+1', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+2 days', '13:00'), 14500, 30, '2+2', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+2 days', '15:00'), 15000, 30, '2+1', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+2 days', '17:00'), 16000, 30, '2+2', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+2 days', '19:00'), 15500, 30, '2+2', 180),
+
+(2, 'Ankara', 'İzmir', datetime('now', '+2 days', '08:00'), 26000, 35, '2+1', 420),
+(1, 'Ankara', 'İzmir', datetime('now', '+2 days', '12:00'), 25000, 40, '2+2', 420),
+(3, 'Ankara', 'İzmir', datetime('now', '+2 days', '16:00'), 24000, 40, '2+2', 420),
+(2, 'Ankara', 'İzmir', datetime('now', '+2 days', '20:00'), 27000, 35, '2+1', 420),
+
+(3, 'Ankara', 'Antalya', datetime('now', '+2 days', '09:00'), 30000, 40, '2+2', 540),
+(2, 'Ankara', 'Antalya', datetime('now', '+2 days', '15:00'), 31000, 35, '2+1', 540),
+(1, 'Ankara', 'Antalya', datetime('now', '+2 days', '19:00'), 29000, 40, '2+2', 540),
+
+-- İzmir → Ankara (ters yön)
+(2, 'İzmir', 'Ankara', datetime('now', '+2 days', '09:00'), 26000, 35, '2+1', 420),
+(1, 'İzmir', 'Ankara', datetime('now', '+2 days', '13:00'), 25000, 40, '2+2', 420),
+
+-- GÜN 3 - 40 SEFER
+(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '06:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+3 days', '08:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '10:00'), 25000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+3 days', '12:00'), 24000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '14:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+3 days', '16:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '18:00'), 27000, 40, '2+2', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+3 days', '20:00'), 25000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+3 days', '22:00'), 28000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+3 days', '23:30'), 29000, 35, '2+1', 330),
+
+(2, 'İstanbul', 'İzmir', datetime('now', '+3 days', '07:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+3 days', '09:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+3 days', '11:00'), 26000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+3 days', '13:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+3 days', '15:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+3 days', '17:00'), 29000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+3 days', '19:00'), 30000, 35, '2+1', 480),
+(1, 'İstanbul', 'İzmir', datetime('now', '+3 days', '21:00'), 28000, 40, '2+2', 480),
+
+(3, 'İstanbul', 'Antalya', datetime('now', '+3 days', '08:00'), 35000, 40, '2+2', 600),
+(2, 'İstanbul', 'Antalya', datetime('now', '+3 days', '12:00'), 36000, 35, '2+1', 600),
+(1, 'İstanbul', 'Antalya', datetime('now', '+3 days', '16:00'), 34000, 40, '2+2', 600),
+(3, 'İstanbul', 'Antalya', datetime('now', '+3 days', '20:00'), 37000, 40, '2+2', 600),
+(2, 'İstanbul', 'Antalya', datetime('now', '+3 days', '22:00'), 38000, 35, '2+1', 600),
+
+(1, 'İstanbul', 'Bursa', datetime('now', '+3 days', '06:30'), 15000, 30, '2+1', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+3 days', '08:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+3 days', '10:00'), 15000, 30, '2+1', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+3 days', '12:00'), 14500, 30, '2+2', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+3 days', '14:00'), 15000, 30, '2+1', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+3 days', '16:00'), 16000, 30, '2+2', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+3 days', '18:00'), 15500, 30, '2+2', 180),
+(2, 'İstanbul', 'Bursa', datetime('now', '+3 days', '20:00'), 16000, 30, '2+1', 180),
+
+(2, 'Ankara', 'İzmir', datetime('now', '+3 days', '08:00'), 26000, 35, '2+1', 420),
+(1, 'Ankara', 'İzmir', datetime('now', '+3 days', '12:00'), 25000, 40, '2+2', 420),
+(3, 'Ankara', 'İzmir', datetime('now', '+3 days', '16:00'), 24000, 40, '2+2', 420),
+(2, 'Ankara', 'İzmir', datetime('now', '+3 days', '20:00'), 27000, 35, '2+1', 420),
+
+(3, 'Ankara', 'Antalya', datetime('now', '+3 days', '09:00'), 30000, 40, '2+2', 540),
+(2, 'Ankara', 'Antalya', datetime('now', '+3 days', '15:00'), 31000, 35, '2+1', 540),
+(1, 'Ankara', 'Antalya', datetime('now', '+3 days', '19:00'), 29000, 40, '2+2', 540),
+
+(2, 'İzmir', 'Ankara', datetime('now', '+3 days', '09:00'), 26000, 35, '2+1', 420),
+(1, 'İzmir', 'Ankara', datetime('now', '+3 days', '13:00'), 25000, 40, '2+2', 420),
+(3, 'İzmir', 'Ankara', datetime('now', '+3 days', '17:00'), 24000, 40, '2+2', 420),
+
+(1, 'Ankara', 'İstanbul', datetime('now', '+3 days', '10:00'), 25000, 40, '2+2', 330),
+(2, 'Ankara', 'İstanbul', datetime('now', '+3 days', '16:00'), 26000, 35, '2+1', 330),
+
+-- GÜN 4-7: Her gün 20-30 sefer (kısa tutuyorum, aynı pattern)
+(1, 'İstanbul', 'Ankara', datetime('now', '+4 days', '09:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+4 days', '12:00'), 26000, 35, '2+1', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+4 days', '15:00'), 24000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+4 days', '18:00'), 27000, 40, '2+2', 330),
+(2, 'İstanbul', 'İzmir', datetime('now', '+4 days', '10:00'), 28000, 35, '2+1', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+4 days', '14:00'), 26000, 40, '2+2', 480),
+(1, 'İstanbul', 'Antalya', datetime('now', '+4 days', '16:00'), 34000, 40, '2+2', 600),
+(2, 'İstanbul', 'Bursa', datetime('now', '+4 days', '08:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+4 days', '14:00'), 15000, 30, '2+1', 180),
+(3, 'İstanbul', 'Bursa', datetime('now', '+4 days', '18:00'), 15500, 30, '2+2', 180),
+
+(1, 'İstanbul', 'Ankara', datetime('now', '+5 days', '09:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+5 days', '12:00'), 26000, 35, '2+1', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+5 days', '15:00'), 24000, 40, '2+2', 330),
+(1, 'İstanbul', 'Ankara', datetime('now', '+5 days', '18:00'), 27000, 40, '2+2', 330),
+(2, 'İstanbul', 'İzmir', datetime('now', '+5 days', '10:00'), 28000, 35, '2+1', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+5 days', '14:00'), 26000, 40, '2+2', 480),
+(1, 'İstanbul', 'Antalya', datetime('now', '+5 days', '16:00'), 34000, 40, '2+2', 600),
+(2, 'İstanbul', 'Bursa', datetime('now', '+5 days', '08:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+5 days', '14:00'), 15000, 30, '2+1', 180),
+
+(1, 'İstanbul', 'Ankara', datetime('now', '+6 days', '09:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+6 days', '14:00'), 26000, 35, '2+1', 330),
+(1, 'İstanbul', 'İzmir', datetime('now', '+6 days', '10:00'), 27000, 40, '2+2', 480),
+(3, 'İstanbul', 'İzmir', datetime('now', '+6 days', '16:00'), 29000, 40, '2+2', 480),
+(2, 'İstanbul', 'Bursa', datetime('now', '+6 days', '08:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Bursa', datetime('now', '+6 days', '16:00'), 16000, 30, '2+2', 180),
+
+(1, 'İstanbul', 'Ankara', datetime('now', '+7 days', '09:00'), 25000, 40, '2+2', 330),
+(2, 'İstanbul', 'Ankara', datetime('now', '+7 days', '14:00'), 26000, 35, '2+1', 330),
+(3, 'İstanbul', 'Ankara', datetime('now', '+7 days', '19:00'), 28000, 40, '2+2', 330),
+(1, 'İstanbul', 'İzmir', datetime('now', '+7 days', '10:00'), 27000, 40, '2+2', 480),
+(2, 'İstanbul', 'İzmir', datetime('now', '+7 days', '16:00'), 28000, 35, '2+1', 480),
+
+-- GÜN 8-30: Daha seyrek ama yine de her gün sefer var
 (1, 'İstanbul', 'Ankara', datetime('now', '+8 days', '09:00'), 25000, 40, '2+2', 330),
-(3, 'Ankara', 'Antalya', datetime('now', '+9 days', '14:00'), 30000, 40, '2+2', 540),
-(2, 'İstanbul', 'Bursa', datetime('now', '+10 days', '08:00'), 15000, 30, '2+1', 180),
--- Gün 11-20
+(2, 'İstanbul', 'İzmir', datetime('now', '+8 days', '14:00'), 28000, 35, '2+1', 480),
+(1, 'İstanbul', 'Ankara', datetime('now', '+9 days', '10:00'), 25000, 40, '2+2', 330),
+(3, 'Ankara', 'Antalya', datetime('now', '+9 days', '15:00'), 30000, 40, '2+2', 540),
+(2, 'İstanbul', 'Bursa', datetime('now', '+10 days', '08:00'), 14000, 30, '2+2', 180),
+(1, 'İstanbul', 'Ankara', datetime('now', '+10 days', '12:00'), 25000, 40, '2+2', 330),
+
 (1, 'İstanbul', 'Ankara', datetime('now', '+11 days', '09:00'), 25000, 40, '2+2', 330),
 (2, 'İstanbul', 'İzmir', datetime('now', '+12 days', '10:00'), 28000, 35, '2+1', 480),
 (1, 'İstanbul', 'Ankara', datetime('now', '+13 days', '14:00'), 27000, 40, '2+2', 330),
@@ -164,7 +321,7 @@ INSERT OR IGNORE INTO routes (firm_id, origin, destination, depart_at, price_cen
 (2, 'İstanbul', 'Bursa', datetime('now', '+18 days', '09:00'), 15000, 30, '2+1', 180),
 (1, 'İstanbul', 'Ankara', datetime('now', '+19 days', '10:00'), 25000, 40, '2+2', 330),
 (3, 'Ankara', 'İzmir', datetime('now', '+20 days', '13:00'), 26000, 40, '2+2', 420),
--- Gün 21-30
+
 (1, 'İstanbul', 'Ankara', datetime('now', '+21 days', '09:00'), 25000, 40, '2+2', 330),
 (2, 'İstanbul', 'İzmir', datetime('now', '+22 days', '11:00'), 28000, 35, '2+1', 480),
 (1, 'İstanbul', 'Ankara', datetime('now', '+23 days', '14:00'), 27000, 40, '2+2', 330),
@@ -198,3 +355,17 @@ INSERT OR IGNORE INTO tickets (user_id, route_id, seat_no, price_paid_cents, sta
 (3, 3, 5, 28000, 'ACTIVE', datetime('now', '-5 hours')),
 (3, 3, 8, 28000, 'ACTIVE', datetime('now', '-6 hours')),
 (3, 3, 11, 28000, 'ACTIVE', datetime('now', '-6 hours'));
+
+-- Test Kuponları
+INSERT OR IGNORE INTO coupons (code, percent, firm_id, usage_limit, used_count, expires_at, active) VALUES
+('WELCOME10', 10, NULL, 100, 0, datetime('now', '+30 days'), 1),
+('YENI20', 20, NULL, 50, 0, datetime('now', '+30 days'), 1),
+('SIBERVATAN50', 50, NULL, 10, 0, datetime('now', '+7 days'), 1),
+('METRO15', 15, 1, 200, 0, datetime('now', '+60 days'), 1),
+('METRO25', 25, 1, 50, 0, datetime('now', '+30 days'), 1),
+('PAMUKKALE10', 10, 2, 100, 0, datetime('now', '+45 days'), 1),
+('KAMILKOC20', 20, 3, 75, 0, datetime('now', '+30 days'), 1);
+
+-- Kullanım limiti dolmuş test kuponu (test için)
+INSERT OR IGNORE INTO coupons (code, percent, firm_id, usage_limit, used_count, expires_at, active) VALUES
+('FULL', 15, NULL, 5, 5, datetime('now', '+30 days'), 1);

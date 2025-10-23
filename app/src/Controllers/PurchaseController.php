@@ -3,6 +3,13 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../Utils/Auth.php';
+require_once __DIR__ . '/../Utils/Csrf.php';
+
+// Logger - opsiyonel (dosya yoksa atla)
+$logger_path = __DIR__ . '/../Utils/Logger.php';
+if (file_exists($logger_path)) {
+    require_once $logger_path;
+}
 
 $u = auth_user();
 if (!$u) {
@@ -11,17 +18,41 @@ if (!$u) {
   exit;
 }
 
+// CSRF Token kontrolü
+require_csrf();
+
+// CSRF Token kontrolü
+if (!verify_csrf_token()) {
+  $_SESSION['error'] = 'CSRF token hatalı.';
+  header('Location: /');
+  exit;
+}
+
 $userId = (int)$u['id'];
 
-$routeId = isset($_POST['route_id']) ? (int)$_POST['route_id'] : 0;
-// seat_no veya seat_number'ı destekle
-$seatNo  = isset($_POST['seat_no']) ? (int)$_POST['seat_no'] : (isset($_POST['seat_number']) ? (int)$_POST['seat_number'] : 0);
-$couponCode  = strtoupper(trim($_POST['coupon_code'] ?? ''));
+// Input validation - güvenli integer dönüşümü
+$routeId = filter_var($_POST['route_id'] ?? 0, FILTER_VALIDATE_INT);
+$seatNo = filter_var($_POST['seat_no'] ?? $_POST['seat_number'] ?? 0, FILTER_VALIDATE_INT);
+$couponCode = strtoupper(trim($_POST['coupon_code'] ?? ''));
 
-if ($routeId <= 0 || $seatNo <= 0) {
-  $_SESSION['error'] = 'Eksik bilgi. Lütfen tekrar deneyin.';
-  header('Location: /routes?id=' . $routeId);
-  exit;
+// Validation kontrolleri
+if ($routeId === false || $routeId <= 0) {
+    $_SESSION['error'] = 'Geçersiz sefer ID.';
+    header('Location: /');
+    exit;
+}
+
+if ($seatNo === false || $seatNo <= 0) {
+    $_SESSION['error'] = 'Geçersiz koltuk numarası.';
+    header('Location: /routes?id=' . $routeId);
+    exit;
+}
+
+// Kupon kodu güvenlik kontrolü (sadece alfanumerik ve tire)
+if ($couponCode !== '' && !preg_match('/^[A-Z0-9\-]{3,20}$/', $couponCode)) {
+    $_SESSION['error'] = 'Geçersiz kupon kodu formatı.';
+    header('Location: /routes?id=' . $routeId);
+    exit;
 }
 
 try {
@@ -46,19 +77,60 @@ try {
     $priceCents = (int)$route['price_cents'];
     $discountCents = 0;
     $coupon = null;
+    $couponId = null;
     
-    $availableCoupons = [
-        'INDIRIM10' => ['type' => 'percent', 'value' => 10],
-        'YENI20' => ['type' => 'percent', 'value' => 20],
-        'WELCOME50' => ['type' => 'fixed', 'value' => 5000]
-    ];
-    
-    if ($couponCode !== '' && isset($availableCoupons[$couponCode])) {
-        $coupon = $availableCoupons[$couponCode];
-        if ($coupon['type'] === 'percent') {
-            $discountCents = (int)round($priceCents * $coupon['value'] / 100);
-        } else {
-            $discountCents = $coupon['value'];
+    // Kupon kodu kontrolü - Database'den çek
+    if ($couponCode !== '') {
+        try {
+            // Debug: Sorguyu logla
+            error_log("Searching coupon: {$couponCode} for firm_id: " . $route['firm_id']);
+            
+            $stmt = $db->prepare("
+                SELECT * FROM coupons 
+                WHERE code = :code 
+                AND active = 1 
+                AND (expires_at IS NULL OR expires_at > datetime('now'))
+                AND (firm_id IS NULL OR firm_id = :firm_id)
+                AND (usage_limit IS NULL OR used_count < usage_limit)
+            ");
+            $stmt->execute([
+                ':code' => $couponCode,
+                ':firm_id' => $route['firm_id']
+            ]);
+            $coupon = $stmt->fetch();
+            
+            if ($coupon) {
+                // Kupon bulundu!
+                $couponId = (int)$coupon['id'];
+                $discountPercent = (int)$coupon['percent'];
+                $discountCents = (int)round($priceCents * $discountPercent / 100);
+                
+                error_log("Coupon applied: {$couponCode}, Discount: {$discountCents} cents");
+            } else {
+                // Kupon bulunamadı - debug için tüm kuponları kontrol et
+                error_log("Coupon NOT found. Checking all coupons with this code...");
+                
+                $debugStmt = $db->prepare("SELECT * FROM coupons WHERE code = :code");
+                $debugStmt->execute([':code' => $couponCode]);
+                $allCoupons = $debugStmt->fetchAll();
+                error_log("All coupons with code {$couponCode}: " . json_encode($allCoupons));
+                
+                // UYARI VER AMA DEVAM ET (exit yapma!)
+                $_SESSION['warning'] = 'Kupon kodu geçerli değil veya bu firma için kullanılamıyor. Kuponsuz devam ediliyor.';
+                
+                // Kupon bilgilerini sıfırla
+                $couponCode = '';
+                $couponId = null;
+                $discountCents = 0;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Coupon query error: " . $e->getMessage());
+            
+            // Hata durumunda kuponsuz devam et
+            $couponCode = '';
+            $couponId = null;
+            $discountCents = 0;
         }
     }
     
@@ -118,7 +190,31 @@ try {
     }
     $w2->execute([':u'=>$userId, ':a'=>-$payCents, ':r'=>$reason]);
     
+    // Kupon kullanıldıysa, kullanım sayısını artır ve kaydet
+    if ($couponId !== null && $coupon) {
+        // Kupon kullanım sayısını artır
+        $cupd = $db->prepare("UPDATE coupons SET used_count = used_count + 1 WHERE id = :id");
+        $cupd->execute([':id' => $couponId]);
+        
+        // coupon_usages tablosuna kaydet
+        $cins = $db->prepare("
+            INSERT INTO coupon_usages (coupon_id, user_id, ticket_id, discount_amount_cents, used_at)
+            VALUES (:cid, :uid, :tid, :amt, datetime('now'))
+        ");
+        $cins->execute([
+            ':cid' => $couponId,
+            ':uid' => $userId,
+            ':tid' => $ticketId,
+            ':amt' => $discountCents
+        ]);
+    }
+    
     $db->commit();
+    
+    // Bilet satın alma işlemini log'la (eğer logger varsa)
+    if (function_exists('log_ticket_purchase')) {
+        log_ticket_purchase($ticketId, $routeId, $payCents);
+    }
     
     // Session güncelle
     $_SESSION['user_credit'] = $credit - $payCents;

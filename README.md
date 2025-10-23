@@ -83,9 +83,16 @@ Tarayıcıda şu adresi aç:
 | Normal Kullanıcı | test@test.com | password | 1.000 ₺ |
 
 ## indirim kodları
- 'INDIRIM10' ,
- 'YENI20' ,
- 'WELCOME50' 
+Global Kuponlar:
+✅ WELCOME10  → %10 indirim (100 kullanım)
+✅ YENI20     → %20 indirim (50 kullanım)
+✅ SİBERVATAN50    → %50 indirim (10 kullanım)
+
+Firma Kuponları:
+✅ METRO15    → %15 Metro Turizm
+✅ METRO25    → %25 Metro Turizm
+✅ PAMUKKALE10 → %10 Pamukkale
+✅ KAMILKOC20  → %20 Kamil Koç
 
 ## Durdurma
 

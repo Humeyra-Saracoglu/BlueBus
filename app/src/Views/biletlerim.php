@@ -117,6 +117,7 @@ try {
                         
                         <?php if ($canCancel): ?>
                             <form method="POST" action="/cancel-ticket" style="display: inline;">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="ticket_id" value="<?= $ticket['id'] ?>">
                                 <button type="submit" class="btn btn-danger" 
                                         onclick="return confirm('Bu bileti iptal etmek istediğinizden emin misiniz?\n\nÜcret: <?= number_format($ticket['price_paid_cents'] / 100, 2) ?> ₺ hesabınıza iade edilecektir.')">

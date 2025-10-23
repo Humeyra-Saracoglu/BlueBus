@@ -49,13 +49,13 @@ function getCurrentUser() {
 function updateUserCredit($userId) {
     try {
         $db = getDbConnection();
-        $stmt = $db->prepare("SELECT credit FROM users WHERE id = :id");
+        $stmt = $db->prepare("SELECT credit_cents FROM users WHERE id = :id");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user) {
-            $_SESSION['user_credit'] = $user['credit'];
-            return $user['credit'];
+            $_SESSION['user_credit'] = $user['credit_cents'];
+            return $user['credit_cents'];
         }
         return 0;
     } catch (Exception $e) {
