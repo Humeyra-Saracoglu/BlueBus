@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../Utils/Auth.php';
+require_once __DIR__ . '/../Utils/Csrf.php';
 
 $u = auth_user();
 if (!$u) { header('Location: /login'); exit; }
@@ -30,6 +31,7 @@ function toIsoDatetimeFromParts(string $datePart, string $timePart): string {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  require_csrf();
   $action = $_POST['action'] ?? '';
 
   if ($action === 'create') {
@@ -167,6 +169,7 @@ $stats = $statsStmt->fetch();
         <div class="section">
             <h2>➕ Yeni Sefer Ekle</h2>
             <form method="POST" action="/firm-admin">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="create">
                 
                 <div>
@@ -265,6 +268,7 @@ $stats = $statsStmt->fetch();
                                 </td>
                                 <td>
                                     <form method="POST" action="/firm-admin" style="display: inline;" onsubmit="return confirm('Bu seferi silmek istediğinizden emin misiniz?');">
+                                        <?= csrf_field() ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="route_id" value="<?= $rid ?>">
                                         <button type="submit" class="danger" style="padding: 6px 12px; font-size: 12px;">🗑️ Sil</button>

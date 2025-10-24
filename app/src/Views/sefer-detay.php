@@ -197,12 +197,8 @@ let selectedSeat = null;
 let originalPrice = <?= $route['price_cents'] ?>;
 let currentPrice = originalPrice;
 let appliedCoupon = null;
-
-const coupons = {
-    'INDIRIM10': { type: 'percent', value: 10, description: '%10 indirim' },
-    'YENI20': { type: 'percent', value: 20, description: '%20 indirim' },
-    'WELCOME50': { type: 'fixed', value: 5000, description: '50₺ indirim' }
-};
+let discountAmount = 0;
+const routeId = <?= $route['id'] ?>;
 
 function selectSeat(element) {
     if (selectedSeat) {
@@ -219,69 +215,120 @@ function selectSeat(element) {
     document.getElementById('seat-number-input').value = seatNumber;
     document.getElementById('selected-seat-display').textContent = 'Koltuk ' + seatNumber;
     
+    updateBuyButton();
+}
+
+function updateBuyButton() {
     const buyButton = document.getElementById('buy-button');
     buyButton.disabled = false;
     buyButton.textContent = 'Satın Al (' + (currentPrice / 100).toFixed(2) + ' ₺)';
-    
-    if (appliedCoupon) {
-        updatePriceWithDiscount();
-    }
 }
 
-function applyCoupon() {
+async function applyCoupon() {
     const input = document.getElementById('coupon-code-input');
     const code = input.value.toUpperCase().trim();
     const message = document.getElementById('coupon-message');
+    const button = document.querySelector('.coupon-btn');
     
     if (!code) {
-        message.textContent = 'Lütfen bir kod giriniz';
-        message.style.color = '#dc3545';
+        message.textContent = '⚠️ Lütfen bir kupon kodu giriniz';
+        message.style.color = '#f59e0b';
         return;
     }
-    
-    if (coupons[code]) {
-        appliedCoupon = coupons[code];
-        document.getElementById('coupon-code-hidden').value = code;
-        message.textContent = '✅ ' + coupons[code].description + ' uygulandı!';
-        message.style.color = '#28a745';
-        input.disabled = true;
-        updatePriceWithDiscount();
-    } else {
-        message.textContent = '❌ Geçersiz kod';
-        message.style.color = '#dc3545';
-        appliedCoupon = null;
-        document.getElementById('coupon-code-hidden').value = '';
-        currentPrice = originalPrice;
-        updatePriceDisplay();
-    }
-}
 
-function updatePriceWithDiscount() {
-    if (!appliedCoupon) return;
+    button.textContent = 'Kontrol ediliyor...';
+    button.disabled = true;
+    message.textContent = '';
     
-    let discount = 0;
-    if (appliedCoupon.type === 'percent') {
-        discount = Math.floor(originalPrice * appliedCoupon.value / 100);
-    } else {
-        discount = appliedCoupon.value;
+    try {
+        const response = await fetch('/api/check-coupon.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                coupon_code: code,
+                route_id: routeId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            appliedCoupon = {
+                code: code,
+                percent: data.discount_percent
+            };
+     
+            document.getElementById('coupon-code-hidden').value = code;
+
+            discountAmount = Math.round(originalPrice * data.discount_percent / 100);
+            currentPrice = originalPrice - discountAmount;
+ 
+            message.textContent = '✅ ' + data.message;
+            message.style.color = '#10b981';
+
+            input.disabled = true;
+            button.textContent = '✓ Uygulandı';
+            button.style.background = '#10b981';
+            
+            updatePriceDisplay();
+            updateBuyButton();
+            
+        } else {
+            message.textContent = '❌ ' + data.message;
+            message.style.color = '#ef4444';
+            
+            button.textContent = 'Uygula';
+            button.disabled = false;
+            
+            appliedCoupon = null;
+            discountAmount = 0;
+            currentPrice = originalPrice;
+            document.getElementById('coupon-code-hidden').value = '';
+            updatePriceDisplay();
+        }
+        
+    } catch (error) {
+        console.error('Kupon kontrolü hatası:', error);
+        message.textContent = '❌ Bir hata oluştu, lütfen tekrar deneyin';
+        message.style.color = '#ef4444';
+        
+        button.textContent = 'Uygula';
+        button.disabled = false;
     }
-    
-    currentPrice = Math.max(0, originalPrice - discount);
-    
-    document.getElementById('discount-row').style.display = 'flex';
-    document.getElementById('discount-amount').textContent = '-' + (discount / 100).toFixed(2) + ' ₺';
-    document.getElementById('price-input').value = currentPrice;
-    
-    updatePriceDisplay();
 }
 
 function updatePriceDisplay() {
-    document.getElementById('total-price').textContent = (currentPrice / 100).toFixed(2) + ' ₺';
+    const discountRow = document.getElementById('discount-row');
+    const discountAmountEl = document.getElementById('discount-amount');
     
-    if (selectedSeat) {
-        document.getElementById('buy-button').textContent = 'Satın Al (' + (currentPrice / 100).toFixed(2) + ' ₺)';
+    if (discountAmount > 0) {
+        discountRow.style.display = 'flex';
+        discountAmountEl.textContent = '- ' + (discountAmount / 100).toFixed(2) + ' ₺';
+        discountAmountEl.style.color = '#10b981';
+    } else {
+        discountRow.style.display = 'none';
+    }
+    
+    const totalPriceEl = document.getElementById('total-price');
+    totalPriceEl.textContent = (currentPrice / 100).toFixed(2) + ' ₺';
+    
+    if (discountAmount > 0) {
+        totalPriceEl.style.color = '#10b981';
+        totalPriceEl.style.fontWeight = 'bold';
+    } else {
+        totalPriceEl.style.color = '';
+        totalPriceEl.style.fontWeight = '';
     }
 }
+
+document.getElementById('coupon-code-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        applyCoupon();
+    }
+});
 
 document.getElementById('purchase-form').addEventListener('submit', function(e) {
     if (!selectedSeat) {
@@ -289,4 +336,5 @@ document.getElementById('purchase-form').addEventListener('submit', function(e) 
         alert('Lütfen bir koltuk seçiniz!');
     }
 });
+</script>
 </script>

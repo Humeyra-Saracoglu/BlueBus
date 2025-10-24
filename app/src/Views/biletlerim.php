@@ -18,12 +18,17 @@ try {
             r.destination,
             r.depart_at,
             r.duration_minutes,
-            f.name as firm_name
+            f.name as firm_name,
+            CASE 
+                WHEN t.status = 'CANCELLED' THEN 3
+                WHEN r.depart_at < datetime('now') THEN 2
+                ELSE 1
+            END as sort_priority
         FROM tickets t
         JOIN routes r ON t.route_id = r.id
         JOIN firms f ON r.firm_id = f.id
         WHERE t.user_id = :user_id
-        ORDER BY r.depart_at DESC
+        ORDER BY sort_priority ASC, r.depart_at DESC
     ");
     $stmt->execute([':user_id' => $_SESSION['user_id']]);
     $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -70,8 +75,10 @@ try {
                 $timeDiff = $now->diff($departTime);
                 $hoursUntilDeparture = ($timeDiff->days * 24) + $timeDiff->h;
                 $canCancel = ($ticket['status'] == 'ACTIVE' && $hoursUntilDeparture >= 1 && $departTime > $now);
+                
+                $cardOpacity = ($statusClass == 'cancelled' || $statusClass == 'completed') ? 'ticket-faded' : '';
             ?>
-                <div class="profile-card">
+                <div class="profile-card <?= $cardOpacity ?>">
                     <div class="ticket-header">
                         <div class="ticket-status <?= $statusClass ?>"><?= $statusText ?></div>
                         <div class="ticket-number">#BLT-<?= str_pad($ticket['id'], 6, '0', STR_PAD_LEFT) ?></div>

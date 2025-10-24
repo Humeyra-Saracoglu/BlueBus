@@ -5,7 +5,6 @@ require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../Utils/Auth.php';
 require_once __DIR__ . '/../Utils/Csrf.php';
 
-// Logger - opsiyonel (dosya yoksa atla)
 $logger_path = __DIR__ . '/../Utils/Logger.php';
 if (file_exists($logger_path)) {
     require_once $logger_path;
@@ -18,24 +17,14 @@ if (!$u) {
   exit;
 }
 
-// CSRF Token kontrolü
 require_csrf();
-
-// CSRF Token kontrolü
-if (!verify_csrf_token()) {
-  $_SESSION['error'] = 'CSRF token hatalı.';
-  header('Location: /');
-  exit;
-}
 
 $userId = (int)$u['id'];
 
-// Input validation - güvenli integer dönüşümü
 $routeId = filter_var($_POST['route_id'] ?? 0, FILTER_VALIDATE_INT);
 $seatNo = filter_var($_POST['seat_no'] ?? $_POST['seat_number'] ?? 0, FILTER_VALIDATE_INT);
 $couponCode = strtoupper(trim($_POST['coupon_code'] ?? ''));
 
-// Validation kontrolleri
 if ($routeId === false || $routeId <= 0) {
     $_SESSION['error'] = 'Geçersiz sefer ID.';
     header('Location: /');
@@ -48,7 +37,6 @@ if ($seatNo === false || $seatNo <= 0) {
     exit;
 }
 
-// Kupon kodu güvenlik kontrolü (sadece alfanumerik ve tire)
 if ($couponCode !== '' && !preg_match('/^[A-Z0-9\-]{3,20}$/', $couponCode)) {
     $_SESSION['error'] = 'Geçersiz kupon kodu formatı.';
     header('Location: /routes?id=' . $routeId);
@@ -79,10 +67,8 @@ try {
     $coupon = null;
     $couponId = null;
     
-    // Kupon kodu kontrolü - Database'den çek
     if ($couponCode !== '') {
         try {
-            // Debug: Sorguyu logla
             error_log("Searching coupon: {$couponCode} for firm_id: " . $route['firm_id']);
             
             $stmt = $db->prepare("
@@ -100,14 +86,12 @@ try {
             $coupon = $stmt->fetch();
             
             if ($coupon) {
-                // Kupon bulundu!
                 $couponId = (int)$coupon['id'];
                 $discountPercent = (int)$coupon['percent'];
                 $discountCents = (int)round($priceCents * $discountPercent / 100);
                 
                 error_log("Coupon applied: {$couponCode}, Discount: {$discountCents} cents");
             } else {
-                // Kupon bulunamadı - debug için tüm kuponları kontrol et
                 error_log("Coupon NOT found. Checking all coupons with this code...");
                 
                 $debugStmt = $db->prepare("SELECT * FROM coupons WHERE code = :code");
@@ -115,10 +99,8 @@ try {
                 $allCoupons = $debugStmt->fetchAll();
                 error_log("All coupons with code {$couponCode}: " . json_encode($allCoupons));
                 
-                // UYARI VER AMA DEVAM ET (exit yapma!)
                 $_SESSION['warning'] = 'Kupon kodu geçerli değil veya bu firma için kullanılamıyor. Kuponsuz devam ediliyor.';
                 
-                // Kupon bilgilerini sıfırla
                 $couponCode = '';
                 $couponId = null;
                 $discountCents = 0;
@@ -127,7 +109,6 @@ try {
         } catch (Exception $e) {
             error_log("Coupon query error: " . $e->getMessage());
             
-            // Hata durumunda kuponsuz devam et
             $couponCode = '';
             $couponId = null;
             $discountCents = 0;
@@ -163,7 +144,6 @@ try {
         exit;
     }
     
-    // Bakiye düş
     $uupd = $db->prepare("UPDATE users SET credit_cents = credit_cents - :amt WHERE id = :id AND credit_cents >= :amt");
     $uupd->execute([':amt' => $payCents, ':id' => $userId]);
     if ($uupd->rowCount() === 0) {
@@ -173,7 +153,6 @@ try {
         exit;
     }
     
-    // Bilet oluştur
     $ins = $db->prepare("INSERT INTO tickets (user_id,route_id,seat_no,price_paid_cents,status,coupon_code,created_at)
                           VALUES (:u,:r,:s,:p,'ACTIVE',:c,datetime('now'))");
     $ins->execute([
@@ -181,7 +160,6 @@ try {
     ]);
     $ticketId = (int)$db->lastInsertId();
     
-    // Wallet transaction
     $w2 = $db->prepare("INSERT INTO wallet_tx (user_id,amount_cents,reason,created_at)
                          VALUES (:u,:a,:r,datetime('now'))");
     $reason = "Bilet satın alma - Koltuk {$seatNo} (Bilet #{$ticketId})";
@@ -190,13 +168,10 @@ try {
     }
     $w2->execute([':u'=>$userId, ':a'=>-$payCents, ':r'=>$reason]);
     
-    // Kupon kullanıldıysa, kullanım sayısını artır ve kaydet
     if ($couponId !== null && $coupon) {
-        // Kupon kullanım sayısını artır
         $cupd = $db->prepare("UPDATE coupons SET used_count = used_count + 1 WHERE id = :id");
         $cupd->execute([':id' => $couponId]);
         
-        // coupon_usages tablosuna kaydet
         $cins = $db->prepare("
             INSERT INTO coupon_usages (coupon_id, user_id, ticket_id, discount_amount_cents, used_at)
             VALUES (:cid, :uid, :tid, :amt, datetime('now'))
@@ -211,12 +186,10 @@ try {
     
     $db->commit();
     
-    // Bilet satın alma işlemini log'la (eğer logger varsa)
     if (function_exists('log_ticket_purchase')) {
         log_ticket_purchase($ticketId, $routeId, $payCents);
     }
     
-    // Session güncelle
     $_SESSION['user_credit'] = $credit - $payCents;
     
     $message = '✅ Bilet satın alma başarılı!';

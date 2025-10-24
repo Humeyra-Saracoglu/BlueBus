@@ -11,6 +11,7 @@ $db = getDbConnection();
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
     require_csrf();
     
     $action = $_POST['action'] ?? '';
@@ -62,6 +63,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("DELETE FROM routes WHERE id = ?");
             $stmt->execute([$route_id]);
             $_SESSION['success'] = 'Sefer başarıyla silindi';
+            header('Location: /admin');
+            exit;
+        }
+    }
+    
+    if ($action === 'delete_firm') {
+        $firm_id = (int)($_POST['firm_id'] ?? 0);
+        if ($firm_id > 0) {
+            // Önce firma seferlerini kontrol et
+            $check = $db->prepare("SELECT COUNT(*) FROM routes WHERE firm_id = ?");
+            $check->execute([$firm_id]);
+            $routeCount = (int)$check->fetchColumn();
+            
+            if ($routeCount > 0) {
+                $_SESSION['error'] = 'Bu firmaya ait ' . $routeCount . ' sefer var! Önce seferleri silmelisiniz.';
+            } else {
+                $stmt = $db->prepare("DELETE FROM firms WHERE id = ?");
+                $stmt->execute([$firm_id]);
+                $_SESSION['success'] = 'Firma başarıyla silindi';
+            }
             header('Location: /admin');
             exit;
         }
@@ -169,16 +190,23 @@ $tickets = $ticketsStmt->fetchAll();
         </div>
 
         <?php if ($errors): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error" style="background: #fee; border-left: 4px solid #dc3545; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
                 <?php foreach ($errors as $error): ?>
-                    <p>❌ <?= htmlspecialchars($error) ?></p>
+                    <p style="margin: 0; color: #dc3545;">❌ <?= htmlspecialchars($error) ?></p>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-error" style="background: #fee; border-left: 4px solid #dc3545; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                <p style="margin: 0; color: #dc3545;">❌ <?= htmlspecialchars($_SESSION['error']) ?></p>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                ✅ <?= htmlspecialchars($_SESSION['success']) ?>
+            <div class="alert alert-success" style="background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                <p style="margin: 0; color: #155724;">✅ <?= htmlspecialchars($_SESSION['success']) ?></p>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
@@ -207,6 +235,7 @@ $tickets = $ticketsStmt->fetchAll();
         <div class="section">
             <h2>➕ Yeni Firma Ekle</h2>
             <form method="POST">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="add_firm">
                 <div class="form-grid">
                     <div class="form-group">
@@ -227,11 +256,56 @@ $tickets = $ticketsStmt->fetchAll();
                 </div>
             </form>
         </div>
+        
+        <!-- Firma Listesi -->
+        <div class="section">
+            <h2>🏢 Firma Listesi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Firma Adı</th>
+                        <th>Email</th>
+                        <th>Telefon</th>
+                        <th>Sefer Sayısı</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($firms as $firm): 
+                        $countStmt = $db->prepare("SELECT COUNT(*) FROM routes WHERE firm_id = ?");
+                        $countStmt->execute([$firm['id']]);
+                        $firmRouteCount = (int)$countStmt->fetchColumn();
+                    ?>
+                    <tr>
+                        <td><?= $firm['id'] ?></td>
+                        <td><strong><?= htmlspecialchars($firm['name']) ?></strong></td>
+                        <td><?= htmlspecialchars($firm['email'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($firm['phone'] ?? '-') ?></td>
+                        <td><?= $firmRouteCount ?> sefer</td>
+                        <td>
+                            <?php if ($firmRouteCount > 0): ?>
+                                <span style="color: #6b7280; font-size: 12px;">Önce seferleri silin</span>
+                            <?php else: ?>
+                                <form method="POST" style="display: inline;" onsubmit="return confirm('Bu firmayı silmek istediğinizden emin misiniz?');">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="action" value="delete_firm">
+                                    <input type="hidden" name="firm_id" value="<?= $firm['id'] ?>">
+                                    <button type="submit" class="btn btn-danger btn-small">🗑️ Sil</button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Yeni Sefer Ekle -->
         <div class="section">
             <h2>🚌 Yeni Sefer Ekle</h2>
             <form method="POST">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="add_route">
                 <div class="form-grid">
                     <div class="form-group">
@@ -313,6 +387,7 @@ $tickets = $ticketsStmt->fetchAll();
                         <td><?= $route['bus_type'] ?></td>
                         <td>
                             <form method="POST" style="display: inline;" onsubmit="return confirm('Silmek istediğinizden emin misiniz?');">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="delete_route">
                                 <input type="hidden" name="route_id" value="<?= $route['id'] ?>">
                                 <button type="submit" class="btn btn-danger btn-small">🗑️ Sil</button>
